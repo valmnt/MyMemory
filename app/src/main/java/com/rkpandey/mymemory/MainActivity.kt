@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.jinatonic.confetti.CommonConfetti
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.rkpandey.mymemory.creation.CreateActivity
@@ -51,6 +53,8 @@ class MainActivity : AppCompatActivity() {
   private lateinit var adapter: MemoryBoardAdapter
   private var boardSize = BoardSize.EASY
 
+  private lateinit var firebaseAnalytics: FirebaseAnalytics
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
@@ -58,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     rvBoard = findViewById(R.id.rvBoard)
     tvNumMoves = findViewById(R.id.tvNumMoves)
     tvNumPairs = findViewById(R.id.tvNumPairs)
+    firebaseAnalytics = Firebase.analytics
 
     setupBoard()
   }
