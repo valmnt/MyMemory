@@ -8,8 +8,11 @@
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_anchor="@+id/constraintLayout2"
+        app:layout_anchorGravity="center"
         tools:context=".MainActivity">
 
         <LinearLayout
@@ -59,15 +62,16 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvBoard"
-            android:layout_width="410dp"
-            android:layout_height="567dp"
-            android:layout_marginBottom="8dp"
+            android:layout_width="418dp"
+            android:layout_height="472dp"
             android:overScrollMode="never"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/llGameInfo"
+            app:layout_constraintBottom_toBottomOf="@+id/llGameInfo"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.538"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/adView"
+            app:layout_constraintVertical_bias="0.0"
             app:spanCount="2" />
 
         <com.google.android.gms.ads.AdView
@@ -79,7 +83,7 @@
             card_view:adSize="BANNER"
             card_view:adUnitId="ca-app-pub-8356787912537261/1649611480"
             tools:ignore="MissingConstraints"
-            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteX="-1dp"
             tools:layout_editor_absoluteY="-1dp"></com.google.android.gms.ads.AdView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
