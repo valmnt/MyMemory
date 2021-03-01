@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.jinatonic.confetti.CommonConfetti
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity() {
   private lateinit var memoryGame: MemoryGame
   private lateinit var adapter: MemoryBoardAdapter
   private var boardSize = BoardSize.EASY
+  lateinit var mAdView : AdView
 
   private lateinit var firebaseAnalytics: FirebaseAnalytics
 
@@ -68,13 +70,11 @@ class MainActivity : AppCompatActivity() {
 
     setupBoard()
 
-//    setContentView(R.layout.activity_main)
-//
-//    MobileAds.initialize(this) {}
-//
-//    mAdView = view
-//    val adRequest = AdRequest.Builder().build()
-//    mAdView.loadAd(adRequest)
+    MobileAds.initialize(this)
+    mAdView = findViewById(R.id.adView)
+    val adRequest = AdRequest.Builder().build()
+    mAdView.loadAd(adRequest)
+
   }
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
