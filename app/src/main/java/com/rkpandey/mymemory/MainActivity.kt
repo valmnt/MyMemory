@@ -21,6 +21,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.jinatonic.confetti.CommonConfetti
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -65,6 +67,14 @@ class MainActivity : AppCompatActivity() {
     firebaseAnalytics = Firebase.analytics
 
     setupBoard()
+
+//    setContentView(R.layout.activity_main)
+//
+//    MobileAds.initialize(this) {}
+//
+//    mAdView = view
+//    val adRequest = AdRequest.Builder().build()
+//    mAdView.loadAd(adRequest)
   }
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
