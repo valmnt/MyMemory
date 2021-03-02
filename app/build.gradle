@@ -11,8 +11,8 @@ android {
         applicationId "com.gameboard.memo"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 1
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,4 +51,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.android.gms:play-services-ads:19.7.0'
     implementation 'com.google.firebase:firebase-ads:19.7.0'
+    implementation 'com.android.billingclient:billing:3.0.2'
 }

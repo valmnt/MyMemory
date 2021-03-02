@@ -15,11 +15,11 @@ import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.billingclient.api.*
 import com.github.jinatonic.confetti.CommonConfetti
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -59,6 +59,8 @@ class MainActivity : AppCompatActivity() {
 
   private lateinit var firebaseAnalytics: FirebaseAnalytics
 
+
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
@@ -74,7 +76,6 @@ class MainActivity : AppCompatActivity() {
     mAdView = findViewById(R.id.adView)
     val adRequest = AdRequest.Builder().build()
     mAdView.loadAd(adRequest)
-
   }
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
