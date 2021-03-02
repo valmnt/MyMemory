@@ -3,23 +3,27 @@ package com.rkpandey.mymemory
 import android.animation.ArgbEvaluator
 import android.app.Activity
 import android.content.Intent
+import android.content.res.TypedArray
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.TextView
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
+import androidx.core.view.size
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.billingclient.api.*
 import com.github.jinatonic.confetti.CommonConfetti
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -32,7 +36,6 @@ import com.google.firebase.ktx.Firebase
 import com.rkpandey.mymemory.models.BoardSize
 import com.rkpandey.mymemory.models.MemoryGame
 import com.rkpandey.mymemory.models.UserImageList
-import com.rkpandey.mymemory.utils.EXTRA_BOARD_SIZE
 import com.rkpandey.mymemory.utils.EXTRA_GAME_NAME
 import com.squareup.picasso.Picasso
 
@@ -47,6 +50,8 @@ class MainActivity : AppCompatActivity() {
   private lateinit var rvBoard: RecyclerView
   private lateinit var tvNumMoves: TextView
   private lateinit var tvNumPairs: TextView
+  lateinit var cardView: CardView
+  lateinit var image: TypedArray
 
   private val db = Firebase.firestore
   private var gameName: String? = null
@@ -55,7 +60,7 @@ class MainActivity : AppCompatActivity() {
   private lateinit var adapter: MemoryBoardAdapter
   private var boardSize = BoardSize.EASY
   lateinit var mAdView : AdView
-
+  var animFadein: Animation? = null
   private lateinit var firebaseAnalytics: FirebaseAnalytics
 
 
@@ -208,6 +213,9 @@ class MainActivity : AppCompatActivity() {
     tvNumPairs.setTextColor(ContextCompat.getColor(this, R.color.color_progress_none))
     adapter = MemoryBoardAdapter(this, boardSize, memoryGame.cards, object: MemoryBoardAdapter.CardClickListener {
       override fun onCardClicked(position: Int) {
+        animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
+        cardView = findViewById(R.id.cardView)
+        cardView.startAnimation(animFadein)
         updateGameWithFlip(position)
       }
     })

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -57,11 +58,7 @@ class MemoryBoardAdapter(
     fun bind(position: Int) {
       val memoryCard = cards[position]
       if (memoryCard.isFaceUp) {
-        if (memoryCard.imageUrl != null) {
-          Picasso.get().load(memoryCard.imageUrl).placeholder(R.drawable.ic_image).into(imageButton)
-        } else {
           imageButton.setImageResource(memoryCard.identifier)
-        }
       } else {
         imageButton.setImageResource(R.drawable.halloween)
       }

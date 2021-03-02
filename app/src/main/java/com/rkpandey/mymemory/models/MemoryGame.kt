@@ -1,5 +1,6 @@
 package com.rkpandey.mymemory.models
 
+import android.os.SystemClock
 import com.rkpandey.mymemory.utils.DEFAULT_ICONS
 
 class MemoryGame(private val boardSize: BoardSize, customImages: List<String>?) {
@@ -53,7 +54,7 @@ class MemoryGame(private val boardSize: BoardSize, customImages: List<String>?) 
   }
 
   // Turn all unmatched cards face down
-  private fun restoreCards() {
+  fun restoreCards() {
     for (card in cards) {
       if (!card.isMatched) {
         card.isFaceUp = false
