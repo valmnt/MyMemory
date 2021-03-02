@@ -29,7 +29,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.rkpandey.mymemory.creation.CreateActivity
 import com.rkpandey.mymemory.models.BoardSize
 import com.rkpandey.mymemory.models.MemoryGame
 import com.rkpandey.mymemory.models.UserImageList
@@ -99,14 +98,6 @@ class MainActivity : AppCompatActivity() {
         showNewSizeDialog()
         return true
       }
-      R.id.mi_custom -> {
-        showCreationDialog()
-        return true
-      }
-      R.id.mi_download -> {
-        showDownloadDialog()
-        return true
-      }
     }
     return super.onOptionsItemSelected(item)
   }
@@ -164,9 +155,6 @@ class MainActivity : AppCompatActivity() {
         R.id.rbMedium -> BoardSize.MEDIUM
         else -> BoardSize.HARD
       }
-      val intent = Intent(this, CreateActivity::class.java)
-      intent.putExtra(EXTRA_BOARD_SIZE, desiredBoardSize)
-      startActivityForResult(intent, CREATE_REQUEST_CODE)
     })
   }
 
