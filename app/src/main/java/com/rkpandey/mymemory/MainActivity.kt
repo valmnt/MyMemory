@@ -2,6 +2,7 @@ package com.rkpandey.mymemory
 
 import android.animation.ArgbEvaluator
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.res.TypedArray
 import android.graphics.Color
@@ -38,6 +39,10 @@ import com.rkpandey.mymemory.models.MemoryGame
 import com.rkpandey.mymemory.models.UserImageList
 import com.rkpandey.mymemory.utils.EXTRA_GAME_NAME
 import com.squareup.picasso.Picasso
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.concurrent.thread
+import kotlin.concurrent.timerTask
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,7 +57,6 @@ class MainActivity : AppCompatActivity() {
   private lateinit var tvNumPairs: TextView
   lateinit var cardView: CardView
   lateinit var image: TypedArray
-
   private val db = Firebase.firestore
   private var gameName: String? = null
   private var customGameImages: List<String>? = null
@@ -212,11 +216,14 @@ class MainActivity : AppCompatActivity() {
     }
     tvNumPairs.setTextColor(ContextCompat.getColor(this, R.color.color_progress_none))
     adapter = MemoryBoardAdapter(this, boardSize, memoryGame.cards, object: MemoryBoardAdapter.CardClickListener {
-      override fun onCardClicked(position: Int) {
-        animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
-        cardView = findViewById(R.id.cardView)
-        cardView.startAnimation(animFadein)
-        updateGameWithFlip(position)
+      override fun onCardClicked(position: Int, viewHolder: MemoryBoardAdapter.ViewHolder) {
+//        animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in)
+//
+//        viewHolder.itemView.startAnimation(animFadein)
+//
+//        cardView = findViewById(R.id.cardView)
+//        cardView.startAnimation()
+        updateGameWithFlip(position, rvBoard.Recycler(), viewHolder)
       }
     })
     rvBoard.adapter = adapter
@@ -224,7 +231,7 @@ class MainActivity : AppCompatActivity() {
     rvBoard.layoutManager = GridLayoutManager(this, boardSize.getWidth())
   }
 
-  private fun updateGameWithFlip(position: Int) {
+  private fun updateGameWithFlip(position: Int, recycler: RecyclerView.Recycler, viewHolder: MemoryBoardAdapter.ViewHolder) {
     // Error handling:
     if (memoryGame.haveWonGame()) {
       Snackbar.make(clRoot, "You already won! Use the menu to play again.", Snackbar.LENGTH_LONG).show()
@@ -236,21 +243,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Actually flip the card
-    if (memoryGame.flipCard(position)) {
-      Log.i(TAG, "Found a match! Num pairs found: ${memoryGame.numPairsFound}")
-      val color = ArgbEvaluator().evaluate(
-        memoryGame.numPairsFound.toFloat() / boardSize.getNumPairs(),
-        ContextCompat.getColor(this, R.color.color_progress_none),
-        ContextCompat.getColor(this, R.color.color_progress_full)
-      ) as Int
-      tvNumPairs.setTextColor(color)
-      tvNumPairs.text = "Pairs: ${memoryGame.numPairsFound} / ${boardSize.getNumPairs()}"
-      if (memoryGame.haveWonGame()) {
-        Snackbar.make(clRoot, "You won! Congratulations.", Snackbar.LENGTH_LONG).show()
-        CommonConfetti.rainingConfetti(clRoot, intArrayOf(Color.YELLOW, Color.GREEN, Color.MAGENTA)).oneShot()
+    memoryGame.flipCard(position,viewHolder.itemView , applicationContext) { foundMatch ->
+      if (foundMatch) {
+        Log.i(TAG, "Found a match! Num pairs found: ${memoryGame.numPairsFound}")
+        val color = ArgbEvaluator().evaluate(
+          memoryGame.numPairsFound.toFloat() / boardSize.getNumPairs(),
+          ContextCompat.getColor(this, R.color.color_progress_none),
+          ContextCompat.getColor(this, R.color.color_progress_full)
+        ) as Int
+        tvNumPairs.setTextColor(color)
+        tvNumPairs.text = "Pairs: ${memoryGame.numPairsFound} / ${boardSize.getNumPairs()}"
+        if (memoryGame.haveWonGame()) {
+          Snackbar.make(clRoot, "You won! Congratulations.", Snackbar.LENGTH_LONG).show()
+          CommonConfetti.rainingConfetti(clRoot, intArrayOf(Color.YELLOW, Color.GREEN, Color.MAGENTA)).oneShot()
+        }
       }
+      else{
+//          memoryGame.restoreCards()
+
+      }
+      adapter.notifyDataSetChanged()
     }
+
     tvNumMoves.text = "Moves: ${memoryGame.getNumMoves()}"
-    adapter.notifyDataSetChanged()
+
   }
 }

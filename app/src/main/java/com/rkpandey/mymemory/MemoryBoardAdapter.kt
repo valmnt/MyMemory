@@ -5,6 +5,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.view.animation.RotateAnimation
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.cardview.widget.CardView
@@ -16,6 +20,9 @@ import com.rkpandey.mymemory.models.MemoryCard
 import com.squareup.picasso.Picasso
 import kotlin.math.min
 
+
+val cardsMatched: List<String> = ArrayList()
+
 class MemoryBoardAdapter(
   private val context: Context,
   private val boardSize: BoardSize,
@@ -23,14 +30,14 @@ class MemoryBoardAdapter(
   private val cardClickListener: CardClickListener
 ) :
   RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
-
+  var animFadein: Animation? = null
   companion object {
     private const val TAG = "MemoryBoardAdapter"
     private const val MARGIN_SIZE = 10
   }
 
   interface CardClickListener {
-    fun onCardClicked(position: Int)
+    fun onCardClicked(position: Int, viewHolder: ViewHolder)
   }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -49,13 +56,14 @@ class MemoryBoardAdapter(
   override fun getItemCount() = boardSize.numCards
 
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    holder.bind(position)
+    holder.bind(position,holder)
   }
 
   inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
     private val imageButton = itemView.findViewById<ImageButton>(R.id.imageButton)
 
-    fun bind(position: Int) {
+    fun bind(position: Int,holder: ViewHolder) {
       val memoryCard = cards[position]
       if (memoryCard.isFaceUp) {
           imageButton.setImageResource(memoryCard.identifier)
@@ -67,7 +75,7 @@ class MemoryBoardAdapter(
       ViewCompat.setBackgroundTintList(imageButton, colorStateList)
       imageButton.setOnClickListener {
         Log.i(TAG, "Clicked on position $position")
-        cardClickListener.onCardClicked(position)
+        cardClickListener.onCardClicked(position,holder)
       }
     }
 

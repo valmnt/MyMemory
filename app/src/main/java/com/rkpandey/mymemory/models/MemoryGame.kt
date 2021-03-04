@@ -1,7 +1,21 @@
 package com.rkpandey.mymemory.models
 
+import android.content.Context
+import android.content.res.TypedArray
+import android.graphics.drawable.Drawable
+import android.os.Handler
 import android.os.SystemClock
+import android.view.View
+import android.view.animation.*
+import android.widget.ImageView
+import androidx.cardview.widget.CardView
+import com.rkpandey.mymemory.FlipAnimation
+import com.rkpandey.mymemory.R
 import com.rkpandey.mymemory.utils.DEFAULT_ICONS
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.concurrent.timer
+import kotlin.coroutines.coroutineContext
 
 class MemoryGame(private val boardSize: BoardSize, customImages: List<String>?) {
 
@@ -22,7 +36,7 @@ class MemoryGame(private val boardSize: BoardSize, customImages: List<String>?) 
     }
   }
 
-  fun flipCard(position: Int): Boolean {
+  fun flipCard(position: Int, view: View,context: Context, callback: ((Boolean) -> Unit)): Boolean {
     numCardFlips++
     val card = cards[position]
     var foundMatch = false
@@ -37,9 +51,29 @@ class MemoryGame(private val boardSize: BoardSize, customImages: List<String>?) 
     } else {
       // exactly 1 card was selected previously
       foundMatch = checkForMatch(indexOfSingleSelectedCard!!, position)
+
       indexOfSingleSelectedCard = null
     }
-    card.isFaceUp = !card.isFaceUp
+
+    val animFadein: Animation = FlipAnimation(ImageView(context), Drawable.createFromPath(card.imageUrl) ,true)
+    animFadein.setAnimationListener(object: Animation.AnimationListener {
+      override fun onAnimationRepeat(animation: Animation) {
+      }
+      override fun onAnimationEnd(animation: Animation) {
+        card.isFaceUp = !card.isFaceUp
+        callback.invoke(foundMatch)
+      }
+      override fun onAnimationStart(animation: Animation) {
+      }
+    })
+    view.startAnimation(animFadein)
+    if(!card.isMatched){
+      restoreCards()
+      cards[position].isFaceUp = false
+      if(indexOfSingleSelectedCard != null){
+        cards[indexOfSingleSelectedCard!!].isFaceUp = false
+      }
+    }
     return foundMatch
   }
 
