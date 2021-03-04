@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
   private var remoteConfig = FirebaseRemoteConfig.getInstance()
 
   private lateinit var layout: ConstraintLayout
-  private var params: ConstraintLayout.LayoutParams = ConstraintLayout.LayoutParams(1400, 250)
+  private var params: ConstraintLayout.LayoutParams = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 250)
   private var TEN_MINUTES_CONSTRAINT: Long = 600
   private var topPosition: Boolean = false
   private lateinit var adId: String
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main2)
       } else {
         setContentView(R.layout.activity_main)
-        params = ConstraintLayout.LayoutParams(1400, 3500)
+        params = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 3500)
       }
 
       clRoot = findViewById(R.id.clRoot)
