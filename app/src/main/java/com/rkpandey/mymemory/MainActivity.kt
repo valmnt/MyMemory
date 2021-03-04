@@ -4,17 +4,17 @@ import android.animation.ArgbEvaluator
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.TextView
+import android.widget.*
+import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.billingclient.api.*
 import com.github.jinatonic.confetti.CommonConfetti
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.snackbar.Snackbar
@@ -29,12 +30,14 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.rkpandey.mymemory.models.BoardSize
 import com.rkpandey.mymemory.models.MemoryGame
 import com.rkpandey.mymemory.models.UserImageList
-import com.rkpandey.mymemory.utils.EXTRA_BOARD_SIZE
 import com.rkpandey.mymemory.utils.EXTRA_GAME_NAME
 import com.squareup.picasso.Picasso
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -54,27 +57,61 @@ class MainActivity : AppCompatActivity() {
   private lateinit var memoryGame: MemoryGame
   private lateinit var adapter: MemoryBoardAdapter
   private var boardSize = BoardSize.EASY
-  lateinit var mAdView : AdView
 
   private lateinit var firebaseAnalytics: FirebaseAnalytics
+  private var remoteConfig = FirebaseRemoteConfig.getInstance()
 
-
+  private lateinit var layout: ConstraintLayout
+  private var params: ConstraintLayout.LayoutParams = ConstraintLayout.LayoutParams(1400, 250)
+  private var TEN_MINUTES_CONSTRAINT: Long = 600
+  private var topPosition: Boolean = false
+  private lateinit var adId: String
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
-    clRoot = findViewById(R.id.clRoot)
-    rvBoard = findViewById(R.id.rvBoard)
-    tvNumMoves = findViewById(R.id.tvNumMoves)
-    tvNumPairs = findViewById(R.id.tvNumPairs)
-    firebaseAnalytics = Firebase.analytics
 
-    setupBoard()
+    remoteConfig.setConfigSettingsAsync(
+      FirebaseRemoteConfigSettings.Builder()
+        .build()
+    )
 
-    MobileAds.initialize(this)
-    mAdView = findViewById(R.id.adView)
-    val adRequest = AdRequest.Builder().build()
-    mAdView.loadAd(adRequest)
+    val fetch = remoteConfig.fetch(if (BuildConfig.DEBUG) 0 else TEN_MINUTES_CONSTRAINT)
+    fetch.addOnCompleteListener {
+      remoteConfig.activate()
+      topPosition = remoteConfig.getBoolean("ads_position")
+      adId = remoteConfig.getString("ads_id")
+
+      if (fetch.isSuccessful && topPosition) {
+        setContentView(R.layout.activity_main2)
+      } else {
+        setContentView(R.layout.activity_main)
+        params = ConstraintLayout.LayoutParams(1400, 3500)
+      }
+
+      clRoot = findViewById(R.id.clRoot)
+      rvBoard = findViewById(R.id.rvBoard)
+      tvNumMoves = findViewById(R.id.tvNumMoves)
+      tvNumPairs = findViewById(R.id.tvNumPairs)
+      layout = findViewById(R.id.constraintLayout2)
+      firebaseAnalytics = Firebase.analytics
+
+      setupBoard()
+
+      MobileAds.initialize(this)
+      val adView = AdView(this)
+      adView.adSize = AdSize.BANNER
+
+      if (fetch.isSuccessful && adId.isNotEmpty()) {
+        adView.adUnitId = adId
+      } else {
+        adView.adUnitId = "ca-app-pub-3940256099942544/6300978111"
+      }
+
+      layout.addView(adView, params)
+
+      val adRequest = AdRequest.Builder().build()
+      adView.loadAd(adRequest)
+    }
   }
 
   override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -128,7 +165,11 @@ class MainActivity : AppCompatActivity() {
       val userImageList = document.toObject(UserImageList::class.java)
       if (userImageList?.images == null)   {
         Log.e(TAG, "Invalid custom game data from Firebase")
-        Snackbar.make(clRoot, "Sorry, we couldn't find any such game, '$customGameName'", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(
+          clRoot,
+          "Sorry, we couldn't find any such game, '$customGameName'",
+          Snackbar.LENGTH_LONG
+        ).show()
         return@addOnSuccessListener
       }
       val numCards = userImageList.images.size * 2
@@ -178,7 +219,11 @@ class MainActivity : AppCompatActivity() {
     })
   }
 
-  private fun showAlertDialog(title: String, view: View?, positiveClickListener: View.OnClickListener) {
+  private fun showAlertDialog(
+    title: String,
+    view: View?,
+    positiveClickListener: View.OnClickListener
+  ) {
     AlertDialog.Builder(this)
       .setTitle(title)
       .setView(view)
@@ -206,11 +251,15 @@ class MainActivity : AppCompatActivity() {
       }
     }
     tvNumPairs.setTextColor(ContextCompat.getColor(this, R.color.color_progress_none))
-    adapter = MemoryBoardAdapter(this, boardSize, memoryGame.cards, object: MemoryBoardAdapter.CardClickListener {
-      override fun onCardClicked(position: Int) {
-        updateGameWithFlip(position)
-      }
-    })
+    adapter = MemoryBoardAdapter(
+      this,
+      boardSize,
+      memoryGame.cards,
+      object : MemoryBoardAdapter.CardClickListener {
+        override fun onCardClicked(position: Int) {
+          updateGameWithFlip(position)
+        }
+      })
     rvBoard.adapter = adapter
     rvBoard.setHasFixedSize(true)
     rvBoard.layoutManager = GridLayoutManager(this, boardSize.getWidth())
